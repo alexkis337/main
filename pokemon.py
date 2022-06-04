@@ -15,8 +15,17 @@ poke_types = {
         'grass': 1
     },
 }
+
+potion_list = {
+    's_potion': 10,
+    'm_potion': 25,
+    'b_potion': 50,
+    'sup_potion': 100,
+    'revival_potion': True
+}
+
 class Pokemon:
-    def __init__(self, name, type, level, max_health, current_health, ko_status):
+    def __init__(self, name, type, level, max_health, current_health, ko_status = False):
         self.name = name
         self.type = type
         self.level = level
@@ -27,6 +36,13 @@ class Pokemon:
         if self.type in ['fire', 'water', 'grass']:
             pass
         else:
+            self.name = None
+            self.type = None
+            self.level = None
+            self.max_health = None
+            self.current_health = None
+            self.ko_status = None
+
             print('Please change the type')
 
     def __repr__(self):
@@ -45,6 +61,8 @@ class Pokemon:
 
     def gain_health(self, amount):
         self.current_health += amount
+        if self.current_health > self.max_health:
+            self.current_health = self.max_health
         print(f"After receiving healing {self.name} has {self.current_health} HP")
         return self.current_health
 
@@ -69,11 +87,58 @@ class Pokemon:
         def_pokemon.lose_health(damage)
 
 
+class Trainer:
+    def __init__(self, name, current_poke, pokemons = [], potions = []):
+        self.name = name
+        self.current_poke = pokemons[0]
+        self.pokemons = pokemons
+        self.potions = potions
 
-charmander = Pokemon('Charmander', 'fire', 13, 100, 100, False)
+    def __repr__(self):
+        return f"""
+    Trainer: {self.name}
+    Current Pokemon: {self.current_poke}
+    Available pokemons: {self.pokemons[1:]}
+    Potions: {self.potions}
+    """
+
+    def use_potion(self, potion):
+        self.current_poke.gain_health(potion_list[potion])
+        self.potions[potion] -= 1
+
+    def swap(self, poke_to_swap):
+        if poke_to_swap not in self.pokemons:
+            print("Pokemon is not available")
+        if self.current_poke == poke_to_swap:
+            print("Pokemon is already on battlefield")
+        else:
+            self.current_poke = poke_to_swap
+            print(f"{poke_to_swap.name} is coming to the battlefield")
+
+
+ #   def use_potion(self, potion):
+ #       self.current_poke.current_health += potion_list[potion]
+ #       self.potions[potion] -= 1
+
+
+charmander = Pokemon('Charmander', 'fire', 13, 100, 100)
 print(charmander)
 
-squirtle = Pokemon('Squirtle', 'water', 12, 100, 100, False)
+squirtle = Pokemon('Squirtle', 'water', 12, 100, 100)
 print(squirtle)
 
+Ash = Trainer('Ash', 'Charmander', [charmander, squirtle], {'s_potion': 2, 'm_potion': 3})
+
+
+print(Ash.current_poke.current_health)
 squirtle.attack(charmander)
+print(Ash.current_poke.current_health)
+#print(type(potion_list['s_potion']))
+print(Ash.potions)
+Ash.use_potion('m_potion')
+print(Ash.current_poke.current_health)
+print(Ash.potions)
+print(Ash.current_poke)
+Ash.swap(squirtle)
+print(Ash.current_poke)
+Ash.swap(squirtle)
